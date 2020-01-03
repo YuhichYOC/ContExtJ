@@ -22,37 +22,29 @@ package com.yoclabo.grep;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Condition {
 
-    List<RowCondition> rowConditions;
+    List<SubCondition> subConditions;
     private String tag;
-    private Match match;
 
-    private List<Match> hit;
+    private List<SubCondition> hit;
 
     public Condition() {
-        rowConditions = new ArrayList<>();
-        match = new Match();
+        subConditions = new ArrayList<>();
         hit = new ArrayList<>();
-    }
-
-    public String getTag() {
-        return tag;
     }
 
     public void setTag(String arg) {
         tag = arg;
     }
 
-    public List<Match> getHit() {
+    public List<SubCondition> getHit() {
         return hit;
     }
 
     public void add(String p, boolean n) {
-        rowConditions.add((new RowCondition(p, n)));
+        subConditions.add((new SubCondition(p, n)));
     }
 
     public void test(String arg, int rix) {
@@ -60,20 +52,20 @@ public class Condition {
             throw new IllegalArgumentException("Argument 'rix' must be bigger than zero. 'rix' is Row IndeX of file that testing.");
         }
         int testStart = 0;
-        if (!match.started() && rowConditions.get(0).test(arg)) {
+        if (!match.started() && subConditions.get(0).test(arg)) {
             match.setTag(tag);
             match.start(rix);
-            testStart += rowConditions.get(0).getLeft();
+            testStart += subConditions.get(0).getLeft();
         }
         if (match.started()) {
             match.add(arg);
-            int rcc = rowConditions.size();
+            int rcc = subConditions.size();
             for (int i = 1; rcc > i; ++i) {
-                if (rowConditions.get(i).isHit()) {
+                if (subConditions.get(i).isHit()) {
                     continue;
                 }
-                if (rowConditions.get(i).test(arg.substring(testStart))) {
-                    testStart += rowConditions.get(i).getLeft();
+                if (subConditions.get(i).test(arg.substring(testStart))) {
+                    testStart += subConditions.get(i).getLeft();
                 }
             }
         }
@@ -89,8 +81,8 @@ public class Condition {
     }
 
     private boolean ConsistencyInspection() {
-        List<RowCondition> p = new ArrayList<>();
-        for (RowCondition item : rowConditions) {
+        List<SubCondition> p = new ArrayList<>();
+        for (SubCondition item : subConditions) {
             if (item.isNegative()) {
                 continue;
             }
@@ -102,8 +94,8 @@ public class Condition {
                 return false;
             }
         }
-        List<RowCondition> n = new ArrayList<>();
-        for (RowCondition item : rowConditions) {
+        List<SubCondition> n = new ArrayList<>();
+        for (SubCondition item : subConditions) {
             if (item.isNegative()) {
                 n.add(item);
             }
@@ -118,7 +110,7 @@ public class Condition {
     }
 
     private boolean allHit() {
-        for (RowCondition c : rowConditions) {
+        for (SubCondition c : subConditions) {
             if (c.isNegative()) {
                 continue;
             }
@@ -136,7 +128,7 @@ public class Condition {
     }
 
     private void initConditions() {
-        for (RowCondition c : rowConditions) {
+        for (SubCondition c : subConditions) {
             c.init();
         }
     }
@@ -144,65 +136,16 @@ public class Condition {
     @Override
     public String toString() {
         StringBuilder ret = new StringBuilder();
-        for (int i = 0; rowConditions.size() > i; ++i) {
+        for (int i = 0; subConditions.size() > i; ++i) {
             if (0 < i) {
                 ret.append(" ## ");
             }
-            if (rowConditions.get(i).isNegative()) {
+            if (subConditions.get(i).isNegative()) {
                 ret.append("[N]");
             }
-            ret.append(rowConditions.get(i).toString());
+            ret.append(subConditions.get(i).toString());
         }
         return ret.toString();
     }
 
-    private class RowCondition {
-
-        private String pattern;
-
-        private boolean negative;
-
-        private boolean isHit;
-
-        private int left;
-
-        public RowCondition(String p, boolean n) {
-            pattern = p;
-            negative = n;
-            isHit = false;
-            left = 0;
-        }
-
-        public boolean isNegative() {
-            return negative;
-        }
-
-        public boolean isHit() {
-            return isHit;
-        }
-
-        public int getLeft() {
-            return left;
-        }
-
-        public void init() {
-            isHit = false;
-            left = 0;
-        }
-
-        public boolean test(String arg) {
-            Matcher m = Pattern.compile(pattern).matcher(arg);
-            if (m.find()) {
-                isHit = true;
-                left = m.end();
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public String toString() {
-            return pattern;
-        }
-    }
 }
