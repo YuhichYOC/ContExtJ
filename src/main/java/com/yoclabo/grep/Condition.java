@@ -20,26 +20,31 @@
  */
 package com.yoclabo.grep;
 
+import com.yoclabo.text.FileEntityJ;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Condition {
 
     List<SubCondition> subConditions;
+
     private String tag;
 
-    private List<SubCondition> hit;
+    private Map<List<SubCondition>, Boolean> hit;
 
     public Condition() {
         subConditions = new ArrayList<>();
-        hit = new ArrayList<>();
+        hit = new HashMap<>();
     }
 
     public void setTag(String arg) {
         tag = arg;
     }
 
-    public List<SubCondition> getHit() {
+    public Map<List<SubCondition>, Boolean> getHit() {
         return hit;
     }
 
@@ -47,70 +52,91 @@ public class Condition {
         subConditions.add((new SubCondition(p, n)));
     }
 
-    public void test(String arg, int rix) {
-        if (0 > rix) {
-            throw new IllegalArgumentException("Argument 'rix' must be bigger than zero. 'rix' is Row IndeX of file that testing.");
-        }
-        int testStart = 0;
-        if (!match.started() && subConditions.get(0).test(arg)) {
-            match.setTag(tag);
-            match.start(rix);
-            testStart += subConditions.get(0).getLeft();
-        }
-        if (match.started()) {
-            match.add(arg);
-            int rcc = subConditions.size();
-            for (int i = 1; rcc > i; ++i) {
-                if (subConditions.get(i).isHit()) {
-                    continue;
-                }
-                if (subConditions.get(i).test(arg.substring(testStart))) {
-                    testStart += subConditions.get(i).getLeft();
-                }
-            }
-        }
-        if (!ConsistencyInspection()) {
-            initConditions();
-            match.init();
-        }
-        if (allHit()) {
-            initConditions();
-            hit.add(match);
-            match = new Match();
+    public void test(FileEntityJ arg) {
+        testFirstOnes(arg);
+        for (List<SubCondition> h : hit.keySet()) {
+            testOthers(arg, h);
         }
     }
 
-    private boolean ConsistencyInspection() {
-        List<SubCondition> p = new ArrayList<>();
-        for (SubCondition item : subConditions) {
+    private void testFirstOnes(FileEntityJ arg) {
+        for (int i = 0; arg.getRowCount() > i; ++i) {
+            int start = 0;
+            while (arg.getContent().get(i).length() >= start) {
+                if (subConditions.get(0).test(arg.getContent().get(i), i, start)) {
+                    List<SubCondition> add = new ArrayList<>();
+                    for (SubCondition s : subConditions) {
+                        add.add(s.fork());
+                    }
+                    hit.put(add, true);
+                    start += subConditions.get(0).getLeft();
+                }
+                else {
+                    start = arg.getContent().get(i).length();
+                }
+            }
+        }
+    }
+
+    private void testOthers(FileEntityJ arg, List<SubCondition> h) {
+        for (int i = h.get(0).getRow(); arg.getRowCount() > i; ++i) {
+            int start = 0;
+            if (i == h.get(0).getRow()) {
+                start = h.get(0).getLeft();
+            }
+            while (arg.getContent().get(i).length() >= start) {
+                for (int j = 1; h.size() > j; ++j) {
+                    if (h.get(j).isHit()) {
+                        continue;
+                    }
+                    if (h.get(j).test(arg.getContent().get(i), i, start)) {
+                        start += h.get(j).getLeft();
+                    }
+                }
+            }
+            if (!consistencyInspect(h)) {
+                hit.replace(h, false);
+                return;
+            }
+            if (allHit(h)) {
+                return;
+            }
+        }
+        if (!allHit(h)) {
+            hit.replace(h, false);
+        }
+    }
+
+    private boolean consistencyInspect(List<SubCondition> h) {
+        List<SubCondition> positives = new ArrayList<>();
+        for (SubCondition item : h) {
             if (item.isNegative()) {
                 continue;
             }
-            p.add(item);
+            positives.add(item);
         }
-        int prcc = p.size();
-        for (int i = 1; prcc > i; ++i) {
-            if (!p.get(i - 1).isHit() && p.get(i).isHit()) {
+        int pc = positives.size();
+        for (int i = 1; pc > i; ++i) {
+            if (!positives.get(i - 1).isHit() && positives.get(i).isHit()) {
                 return false;
             }
         }
-        List<SubCondition> n = new ArrayList<>();
-        for (SubCondition item : subConditions) {
+        List<SubCondition> negatives = new ArrayList<>();
+        for (SubCondition item : h) {
             if (item.isNegative()) {
-                n.add(item);
+                negatives.add(item);
             }
         }
-        int nrcc = n.size();
-        for (int j = 0; nrcc > j; ++j) {
-            if (n.get(j).isHit()) {
+        for (SubCondition negative : negatives) {
+            if (negative.isHit()) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean allHit() {
-        for (SubCondition c : subConditions) {
+    private boolean allHit(List<SubCondition> h) {
+        for (SubCondition c : h) {
             if (c.isNegative()) {
                 continue;
             }
@@ -123,7 +149,6 @@ public class Condition {
 
     public void init() {
         initConditions();
-        match.init();
         hit.clear();
     }
 
@@ -147,5 +172,4 @@ public class Condition {
         }
         return ret.toString();
     }
-
 }

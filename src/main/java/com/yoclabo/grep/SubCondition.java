@@ -31,6 +31,8 @@ class SubCondition {
 
     private boolean isHit;
 
+    private int row;
+
     private int left;
 
     private String hit;
@@ -39,6 +41,7 @@ class SubCondition {
         pattern = Pattern.compile(p);
         negative = n;
         isHit = false;
+        row = 0;
         left = 0;
         hit = "";
     }
@@ -51,6 +54,10 @@ class SubCondition {
         return isHit;
     }
 
+    public int getRow() {
+        return row;
+    }
+
     public int getLeft() {
         return left;
     }
@@ -61,18 +68,31 @@ class SubCondition {
 
     public void init() {
         isHit = false;
+        row = 0;
         left = 0;
+        hit = "";
     }
 
-    public boolean test(String arg, int start) {
+    public boolean test(String arg, int r, int start) {
         Matcher m = pattern.matcher(arg.substring(start));
         if (m.find()) {
             isHit = true;
+            row = r;
             left = start + m.end();
             hit = arg;
             return true;
         }
         return false;
+    }
+
+    public SubCondition fork() {
+        SubCondition ret = new SubCondition(pattern.toString(), negative);
+        ret.isHit = isHit;
+        ret.row = row;
+        ret.left = left;
+        ret.hit = hit;
+        init();
+        return ret;
     }
 
     @Override
