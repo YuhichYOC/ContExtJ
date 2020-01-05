@@ -5,13 +5,14 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 public class ContExtJTest {
 
     @Test
     public void test01() {
-        String path = ContExtJTest.class.getClassLoader().getResource("./patterns2.txt").getPath();
-        String target = ContExtJTest.class.getClassLoader().getResource("./test1").getPath();
+        String path = Objects.requireNonNull(ContExtJTest.class.getClassLoader().getResource("./patterns2.txt")).getPath();
+        String target = Objects.requireNonNull(ContExtJTest.class.getClassLoader().getResource("./test1")).getPath();
 
         ContExtJ c = new ContExtJ();
         try {
@@ -99,8 +100,8 @@ public class ContExtJTest {
 
     @Test
     public void test02() {
-        String path = ContExtJTest.class.getClassLoader().getResource("./patterns2.txt").getPath();
-        String target = ContExtJTest.class.getClassLoader().getResource("./test2").getPath();
+        String path = Objects.requireNonNull(ContExtJTest.class.getClassLoader().getResource("./patterns2.txt")).getPath();
+        String target = Objects.requireNonNull(ContExtJTest.class.getClassLoader().getResource("./test2")).getPath();
 
         ContExtJ c = new ContExtJ();
         try {

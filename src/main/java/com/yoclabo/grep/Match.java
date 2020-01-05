@@ -33,19 +33,21 @@ public class Match {
 
     private String path;
 
-    private String pattern;
-
     public Match() {
         hit = new ArrayList<>();
         start = -1;
     }
 
-    public String getTag() {
-        return tag;
-    }
-
     public void setTag(String arg) {
         tag = arg;
+    }
+
+    public void setPath(String arg) {
+        path = arg;
+    }
+
+    public String getTag() {
+        return tag;
     }
 
     public List<String> getHit() {
@@ -56,24 +58,8 @@ public class Match {
         return start;
     }
 
-    public boolean started() {
-        return (-1 < start);
-    }
-
     public String getPath() {
         return path;
-    }
-
-    public void setPath(String arg) {
-        path = arg;
-    }
-
-    public String getPattern() {
-        return pattern;
-    }
-
-    public void setPattern(String arg) {
-        pattern = arg;
     }
 
     public void start(int arg) {
@@ -81,19 +67,9 @@ public class Match {
     }
 
     public void add(String arg) {
-        hit.add(arg);
-    }
-
-    public void init() {
-        hit.clear();
-        start = -1;
-    }
-
-    public String oneLine() {
-        String ret = "";
-        for (String l : hit) {
-            ret += l;
+        if (hit.contains(arg)) {
+            return;
         }
-        return ret;
+        hit.add(arg);
     }
 }

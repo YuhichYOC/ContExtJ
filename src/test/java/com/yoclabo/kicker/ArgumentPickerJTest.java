@@ -3,6 +3,8 @@ package com.yoclabo.kicker;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Objects;
+
 public class ArgumentPickerJTest {
 
     @Test
@@ -37,8 +39,8 @@ public class ArgumentPickerJTest {
 
     @Test
     public void test03() {
-        var patternFile = ArgumentPickerJTest.class.getClassLoader().getResource("./patterns2.txt").getPath();
-        var target = ArgumentPickerJTest.class.getClassLoader().getResource("./test1").getPath();
+        var patternFile = Objects.requireNonNull(ArgumentPickerJTest.class.getClassLoader().getResource("./patterns2.txt")).getPath();
+        var target = Objects.requireNonNull(ArgumentPickerJTest.class.getClassLoader().getResource("./test1")).getPath();
         var argv = new String[]{"-d", "test01", "abc", "-e", "test02", "-p", patternFile, "-t", target, "-o", "test05"};
         ArgumentPickerJ p = new ArgumentPickerJ(argv);
         try {
@@ -52,12 +54,12 @@ public class ArgumentPickerJTest {
         Assert.assertEquals(patternFile, p.getPatternFile());
         Assert.assertEquals(target, p.getTargetDirectory());
         Assert.assertEquals("test05", p.getOut());
-        Assert.assertEquals(false, p.isWriteStdout());
+        Assert.assertFalse(p.isWriteStdout());
     }
 
     @Test
     public void test04() {
-        var target = ArgumentPickerJTest.class.getClassLoader().getResource("./test1").getPath();
+        var target = Objects.requireNonNull(ArgumentPickerJTest.class.getClassLoader().getResource("./test1")).getPath();
         var argv = new String[]{"-d", "test01", "abc", "-e", "test02", "-p", "test03", "-t", target, "-o", "test05"};
         ArgumentPickerJ p = new ArgumentPickerJ(argv);
         try {
@@ -73,7 +75,7 @@ public class ArgumentPickerJTest {
 
     @Test
     public void test05() {
-        var patternFile = ArgumentPickerJTest.class.getClassLoader().getResource("./patterns2.txt").getPath();
+        var patternFile = Objects.requireNonNull(ArgumentPickerJTest.class.getClassLoader().getResource("./patterns2.txt")).getPath();
         var argv = new String[]{"-d", "test01", "abc", "-e", "test02", "-p", patternFile, "-t", "test04", "-o", "test05"};
         ArgumentPickerJ p = new ArgumentPickerJ(argv);
         try {

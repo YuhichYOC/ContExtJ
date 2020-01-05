@@ -25,6 +25,7 @@ import com.yoclabo.text.FileEntityJ;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ContExtJ {
@@ -60,7 +61,7 @@ public class ContExtJ {
         FileEntityJ f = new FileEntityJ(enc, arg);
         f.read();
         for (String l : f.getContent()) {
-            conditions.add(FetchPatterns(split(l), startsWithTag));
+            conditions.add(fetchPatterns(split(l), startsWithTag));
         }
         f.clear();
     }
@@ -68,19 +69,11 @@ public class ContExtJ {
     private List<String> split(String arg) {
         List<String> ret = new ArrayList<>();
         String[] items = arg.split(delimiter);
-        for (int i = 0; items.length > i; ++i) {
-            ret.add(items[i]);
-        }
+        Collections.addAll(ret, items);
         return ret;
     }
 
-    public void init(List<List<String>> arg, boolean startsWithTag) {
-        for (List<String> item : arg) {
-            conditions.add(FetchPatterns(item, startsWithTag));
-        }
-    }
-
-    private Condition FetchPatterns(List<String> patterns, boolean startsWithTag) {
+    private Condition fetchPatterns(List<String> patterns, boolean startsWithTag) {
         Condition ret = new Condition();
         for (int i = 0; patterns.size() > i; ++i) {
             if (0 == i && startsWithTag) {
@@ -113,19 +106,11 @@ public class ContExtJ {
     private void scan(DirectoryEntityJ arg) throws IOException {
         for (FileEntityJ f : arg.getFiles()) {
             f.read();
-            for (int i = 0; f.getRowCount() > i; ++i) {
-                for (Condition c : conditions) {
-                    c.test(f.getContent().get(i), i);
-                }
+            for (Condition c : conditions) {
+                c.test(f);
             }
             for (Condition c : conditions) {
-                if (0 < c.getHit().size()) {
-                    for (Match m : c.getHit()) {
-                        m.setPath(f.getPath());
-                        m.setPattern(c.toString());
-                        hit.add(m);
-                    }
-                }
+                hit.addAll(c.getHit());
                 c.init();
             }
             f.clear();

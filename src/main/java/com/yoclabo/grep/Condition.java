@@ -33,6 +33,8 @@ public class Condition {
 
     private String tag;
 
+    private FileEntityJ f;
+
     private Map<List<SubCondition>, Boolean> hit;
 
     public Condition() {
@@ -44,8 +46,35 @@ public class Condition {
         tag = arg;
     }
 
-    public Map<List<SubCondition>, Boolean> getHit() {
-        return hit;
+    public List<Match> getHit() {
+        List<Match> ret = new ArrayList<>();
+        hit.forEach((scs, allHit) -> {
+            if (allHit) {
+                Match add = new Match();
+                add.start(scs.get(0).getRow());
+                add.setTag(tag);
+                add.setPath(f.getPath());
+                scs.forEach(sc -> add.add(sc.getHit()));
+                for (int i = 0; f.getRowCount() - 1 > i; ++i) {
+                    if (scs.get(0).getRow() <= i && i <= scs.get(scs.size() - 1).getRow()) {
+                        add.add(f.getContent().get(i));
+                    }
+                }
+                ret.add(add);
+            }
+        });
+        return ret;
+    }
+
+    public void init() {
+        initConditions();
+        hit.clear();
+    }
+
+    private void initConditions() {
+        for (SubCondition c : subConditions) {
+            c.init();
+        }
     }
 
     public void add(String p, boolean n) {
@@ -53,6 +82,7 @@ public class Condition {
     }
 
     public void test(FileEntityJ arg) {
+        f = arg;
         testFirstOnes(arg);
         for (List<SubCondition> h : hit.keySet()) {
             testOthers(arg, h);
@@ -62,14 +92,14 @@ public class Condition {
     private void testFirstOnes(FileEntityJ arg) {
         for (int i = 0; arg.getRowCount() > i; ++i) {
             int start = 0;
-            while (arg.getContent().get(i).length() >= start) {
+            while (arg.getContent().get(i).length() > start) {
                 if (subConditions.get(0).test(arg.getContent().get(i), i, start)) {
+                    start += subConditions.get(0).getLeft();
                     List<SubCondition> add = new ArrayList<>();
                     for (SubCondition s : subConditions) {
                         add.add(s.fork());
                     }
                     hit.put(add, true);
-                    start += subConditions.get(0).getLeft();
                 }
                 else {
                     start = arg.getContent().get(i).length();
@@ -84,13 +114,16 @@ public class Condition {
             if (i == h.get(0).getRow()) {
                 start = h.get(0).getLeft();
             }
-            while (arg.getContent().get(i).length() >= start) {
+            while (arg.getContent().get(i).length() > start) {
                 for (int j = 1; h.size() > j; ++j) {
                     if (h.get(j).isHit()) {
                         continue;
                     }
                     if (h.get(j).test(arg.getContent().get(i), i, start)) {
                         start += h.get(j).getLeft();
+                    }
+                    else {
+                        start = arg.getContent().get(i).length();
                     }
                 }
             }
@@ -145,17 +178,6 @@ public class Condition {
             }
         }
         return true;
-    }
-
-    public void init() {
-        initConditions();
-        hit.clear();
-    }
-
-    private void initConditions() {
-        for (SubCondition c : subConditions) {
-            c.init();
-        }
     }
 
     @Override

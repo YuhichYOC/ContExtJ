@@ -1,0 +1,2 @@
+CREATE OR REPLACE TRIGGER Tr_AfterIns_Accounts
+AFTER INSERT ON Accounts

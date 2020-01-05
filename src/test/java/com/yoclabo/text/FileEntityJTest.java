@@ -3,13 +3,15 @@ package com.yoclabo.text;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Objects;
+
 public class FileEntityJTest {
 
     @Test
     public void test01() {
         try {
             String enc = "UTF-8";
-            String path = FileEntityJTest.class.getClassLoader().getResource("FileEntityJTest01.txt").getPath();
+            String path = Objects.requireNonNull(FileEntityJTest.class.getClassLoader().getResource("FileEntityJTest01.txt")).getPath();
 
             String N = "FileEntityJTest01.txt";
             int rowCount = 5;

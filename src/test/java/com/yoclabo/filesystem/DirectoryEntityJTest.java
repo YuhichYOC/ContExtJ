@@ -3,13 +3,15 @@ package com.yoclabo.filesystem;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Objects;
+
 public class DirectoryEntityJTest {
 
     @Test
     public void test01() {
         try {
             String enc = "UTF-8";
-            String path = DirectoryEntityJTest.class.getClassLoader().getResource("DirectoryEntityJTest01/a").getPath();
+            String path = Objects.requireNonNull(DirectoryEntityJTest.class.getClassLoader().getResource("DirectoryEntityJTest01/a")).getPath();
 
             String CHILDF1 = "a1.txt";
             String CHILDD1 = "ab";

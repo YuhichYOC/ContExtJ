@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ConditionTest {
 
@@ -17,7 +18,7 @@ public class ConditionTest {
         c.add(P1, false);
         c.add(P2, false);
         String enc = "UTF-8";
-        String path = ConditionTest.class.getClassLoader().getResource("./test1/a1.txt").getPath();
+        String path = Objects.requireNonNull(ConditionTest.class.getClassLoader().getResource("./test1/a1.txt")).getPath();
         FileEntityJ f = new FileEntityJ(enc, path);
         try {
             f.read();
@@ -25,9 +26,7 @@ public class ConditionTest {
         catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        for (int i = 0; f.getRowCount() > i; ++i) {
-            c.test(f.getContent().get(i), i);
-        }
+        c.test(f);
         f.clear();
         List<Match> ret = c.getHit();
         Assert.assertEquals(1, ret.size());
@@ -53,7 +52,7 @@ public class ConditionTest {
         c.add(P1, false);
         c.add(P2, false);
         String enc = "UTF-8";
-        String path = ConditionTest.class.getClassLoader().getResource("./test1/ac/ac1.txt").getPath();
+        String path = Objects.requireNonNull(ConditionTest.class.getClassLoader().getResource("./test1/ac/ac1.txt")).getPath();
         FileEntityJ f = new FileEntityJ(enc, path);
         try {
             f.read();
@@ -61,9 +60,7 @@ public class ConditionTest {
         catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        for (int i = 0; f.getRowCount() > i; ++i) {
-            c.test(f.getContent().get(i), i);
-        }
+        c.test(f);
         f.clear();
         List<Match> ret = c.getHit();
         Assert.assertEquals(1, ret.size());
@@ -93,7 +90,7 @@ public class ConditionTest {
         c.add(P2, false);
         c.add(P3, false);
         String enc = "UTF-8";
-        String path = ConditionTest.class.getClassLoader().getResource("./test1/a2.txt").getPath();
+        String path = Objects.requireNonNull(ConditionTest.class.getClassLoader().getResource("./test1/a2.txt")).getPath();
         FileEntityJ f = new FileEntityJ(enc, path);
         try {
             f.read();
@@ -101,9 +98,7 @@ public class ConditionTest {
         catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        for (int i = 0; f.getRowCount() > i; ++i) {
-            c.test(f.getContent().get(i), i);
-        }
+        c.test(f);
         f.clear();
         List<Match> ret = c.getHit();
         Assert.assertEquals(1, ret.size());
@@ -138,7 +133,7 @@ public class ConditionTest {
         c.add(P2, false);
         c.add(P3, false);
         String enc = "UTF-8";
-        String path = ConditionTest.class.getClassLoader().getResource("./test1/a3.txt").getPath();
+        String path = Objects.requireNonNull(ConditionTest.class.getClassLoader().getResource("./test1/a3.txt")).getPath();
         FileEntityJ f = new FileEntityJ(enc, path);
         try {
             f.read();
@@ -146,9 +141,7 @@ public class ConditionTest {
         catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        for (int i = 0; f.getRowCount() > i; ++i) {
-            c.test(f.getContent().get(i), i);
-        }
+        c.test(f);
         f.clear();
         List<Match> ret = c.getHit();
         Assert.assertEquals(0, ret.size());
@@ -159,21 +152,21 @@ public class ConditionTest {
         String P1 = "##TABLES##";
         String P2 = "##";
         String P3 = "##";
-        String TEST1 = "TEST ROW1";
-        String TEST2 = "TEST ##TABLES## ROW2";
-        String TEST3 = "TEST ROW3";
-        String TEST4 = "## TEST ROW4";
-        String TEST5 = "TEST ROW 5##";
 
         Condition c = new Condition();
         c.add(P1, false);
         c.add(P2, false);
         c.add(P3, false);
-        c.test(TEST1, 0);
-        c.test(TEST2, 1);
-        c.test(TEST3, 2);
-        c.test(TEST4, 3);
-        c.test(TEST5, 4);
+        String enc = "UTF-8";
+        String path = Objects.requireNonNull(ConditionTest.class.getClassLoader().getResource("./test3/test05.txt")).getPath();
+        FileEntityJ f = new FileEntityJ(enc, path);
+        try {
+            f.read();
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        c.test(f);
 
         List<Match> ret = c.getHit();
         Assert.assertEquals(1, ret.size());
@@ -191,8 +184,6 @@ public class ConditionTest {
         String P7 = "ON";
         String P8 = "(SELECT|UPDATE|INSERT|DELETE)";
         String P9 = "Accounts";
-        String TEST1 = "CREATE OR REPLACE TRIGGER Tr_AfterIns_Accounts ";
-        String TEST2 = "AFTER INSERT ON Accounts ";
 
         Condition c = new Condition();
         c.add(P1, false);
@@ -204,8 +195,16 @@ public class ConditionTest {
         c.add(P7, false);
         c.add(P8, true);
         c.add(P9, false);
-        c.test(TEST1, 0);
-        c.test(TEST2, 1);
+        String enc = "UTF-8";
+        String path = Objects.requireNonNull(ConditionTest.class.getClassLoader().getResource("./test3/test06.txt")).getPath();
+        FileEntityJ f = new FileEntityJ(enc, path);
+        try {
+            f.read();
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        c.test(f);
 
         List<Match> ret = c.getHit();
         Assert.assertEquals(1, ret.size());

@@ -34,14 +34,14 @@ public class Writer {
                 if (writeTag) {
                     add.append(arg.get(i).getTag());
                     add.append("\t");
-                    add.append(String.valueOf(i));
+                    add.append(i);
                     add.append("\t");
-                    add.append(String.valueOf(j));
+                    add.append(j);
                     add.append("\t");
                 }
                 add.append(arg.get(i).getPath());
                 add.append("\t");
-                add.append(String.valueOf(arg.get(i).getStart() + j));
+                add.append((arg.get(i).getStart() + j));
                 add.append("\t");
                 add.append(arg.get(i).getHit().get(j));
                 ret.add(add.toString());
